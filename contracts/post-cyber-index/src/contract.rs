@@ -8,7 +8,7 @@ use desmos_bindings::posts::querier::PostsQuerier;
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, Packet, QueryMsg, Link};
-use crate::state::{State, CHANNEL_INFO, STATE};
+use crate::state::{CHANNEL_INFO};
 use std::ops::Deref;
 
 // version info for migration info
@@ -21,13 +21,9 @@ pub fn instantiate(
     deps: DepsMut,
     _env: Env,
     info: MessageInfo,
-    msg: InstantiateMsg,
+    _msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
-    let state = State {
-        cyber_contract_address: msg.cyber_contract_address,
-    };
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
-    STATE.save(deps.storage, &state)?;
     Ok(Response::new()
         .add_attribute("method", "instantiate")
         .add_attribute("owner", info.sender))

@@ -1,0 +1,35 @@
+.post {
+    width: 600px;
+    max-height: 200px;
+    padding: 10px;
+    border: 3px white solid;
+    border-radius: 20px;
+    margin-bottom: 10px;
+}
+
+.authorContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.profilePicture {
+    height: 60px;
+    border-radius: 60px;
+}
+
+.authorDetails {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+}
+
+.text {
+    padding-top: 20px;
+    width: 100%;
+    border: 0;
+}
+
+.text:focus {
+    border: 0;
+}

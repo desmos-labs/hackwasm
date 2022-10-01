@@ -8,9 +8,6 @@ use cosmwasm_std::{
     IbcChannelOpenMsg, IbcOrder, IbcPacket, IbcPacketAckMsg, IbcPacketTimeoutMsg, StdResult,
 };
 
-pub const VERSION: &str = "post-cyber-link";
-pub const ORDERING: IbcOrder = IbcOrder::Unordered;
-
 #[cw_serde]
 pub enum Ack {
     Result(Binary),

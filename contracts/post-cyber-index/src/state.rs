@@ -4,9 +4,7 @@ use cw_storage_plus::Item;
 
 #[cw_serde]
 pub struct State {
-    pub subspace_id: u64,
     pub cyber_contract_address: Addr,
-    pub root_hash: String,
 }
 
 pub const STATE: Item<State> = Item::new("state");

@@ -4,15 +4,17 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct InstantiateMsg {
-    pub subspace_id: Uint64,
     pub cyber_contract_address: Addr,
-    pub root_hash: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ExecuteMsg {
-    CyberIndexPost { post_id: Uint64 },
+    CyberIndexPost {
+        subspace_id: Uint64,
+        post_id: Uint64,
+        root_hash: String,
+    },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

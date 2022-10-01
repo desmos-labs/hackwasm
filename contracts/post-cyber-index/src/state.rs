@@ -1,10 +1,8 @@
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, IbcEndpoint};
 use cw_storage_plus::Item;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+#[cw_serde]
 pub struct State {
     pub subspace_id: u64,
     pub cyber_contract_address: Addr,
@@ -19,3 +17,5 @@ pub struct ChannelInfo {
     pub counterparty_endpoint: IbcEndpoint,
     pub connection_id: String,
 }
+
+pub const CHANNEL_INFO: Item<ChannelInfo> = Item::new("channel_info");

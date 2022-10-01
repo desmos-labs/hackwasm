@@ -4,11 +4,10 @@ use cosmwasm_std::{
     to_binary, Binary, Deps, DepsMut, Env, IbcMsg, MessageInfo, Response, Timestamp,
 };
 use cw2::set_contract_version;
-use cyber_std::Link;
 use desmos_bindings::posts::querier::PostsQuerier;
 
 use crate::error::ContractError;
-use crate::msg::{ExecuteMsg, InstantiateMsg, Packet, QueryMsg};
+use crate::msg::{ExecuteMsg, InstantiateMsg, Packet, QueryMsg, Link};
 use crate::state::{State, CHANNEL_INFO, STATE};
 use std::ops::Deref;
 

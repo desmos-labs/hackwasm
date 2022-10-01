@@ -9,7 +9,7 @@ use desmos_bindings::posts::querier::PostsQuerier;
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, Packet, QueryMsg};
-use crate::state::{State, STATE};
+use crate::state::{State, CHANNEL_INFO, STATE};
 use std::ops::Deref;
 
 // version info for migration info
@@ -56,16 +56,17 @@ fn create_post_cyber_link(
     post_id: u64,
 ) -> Result<Response, ContractError> {
     let state = STATE.load(deps.storage)?;
+    let channel_info = CHANNEL_INFO.load(deps.storage)?;
     let links = get_cyber_links_from_post(deps, state.root_hash, state.subspace_id, post_id)?;
     // TODO: set the right channel id
     let msg = IbcMsg::SendPacket {
-        channel_id: "mock-channel-id".into(),
+        channel_id: channel_info.counterparty_endpoint.channel_id,
         data: to_binary(&Packet { links })?,
         timeout: time.plus_seconds(PACKET_LIFETIME).into(),
     };
     Ok(Response::new()
-        .add_message(msg)
-        .add_attribute("method", "create_post_cyber_link"))
+        .add_attribute("method", "create_post_cyber_link")
+        .add_message(msg))
 }
 
 fn get_cyber_links_from_post(

@@ -24,9 +24,7 @@ pub fn instantiate(
     msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
     let state = State {
-        subspace_id: msg.subspace_id.into(),
         cyber_contract_address: msg.cyber_contract_address,
-        root_hash: msg.root_hash,
     };
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
     STATE.save(deps.storage, &state)?;
@@ -43,8 +41,8 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
-        ExecuteMsg::CyberIndexPost { post_id } => {
-            create_post_cyber_link(deps, env.block.time, post_id.into())
+        ExecuteMsg::CyberIndexPost { subspace_id, post_id, root_hash } => {
+            create_post_cyber_link(deps, env.block.time, subspace_id.into(), post_id.into(), root_hash)
         }
     }
 }
@@ -52,14 +50,14 @@ pub fn execute(
 fn create_post_cyber_link(
     deps: DepsMut,
     time: Timestamp,
+    subspace_id: u64,
     post_id: u64,
+    root_hash: String,
 ) -> Result<Response, ContractError> {
-    let state = STATE.load(deps.storage)?;
     let channel_info = CHANNEL_INFO.load(deps.storage)?;
-    let links = get_cyber_links_from_post(deps, state.root_hash, state.subspace_id, post_id)?;
-    // TODO: set the right channel id
+    let links = get_cyber_links_from_post(deps, root_hash, subspace_id, post_id)?;
     let msg = IbcMsg::SendPacket {
-        channel_id: channel_info.counterparty_endpoint.channel_id,
+        channel_id: channel_info.id,
         data: to_binary(&Packet { links })?,
         timeout: time.plus_seconds(PACKET_LIFETIME).into(),
     };

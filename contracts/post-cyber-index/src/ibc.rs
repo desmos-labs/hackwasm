@@ -60,15 +60,6 @@ pub fn ibc_channel_connect(
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
-pub fn ibc_channel_close(
-    _deps: DepsMut,
-    _env: Env,
-    _channel: IbcChannelCloseMsg,
-) -> Result<IbcBasicResponse, ContractError> {
-    unimplemented!();
-}
-
-#[cfg_attr(not(feature = "library"), entry_point)]
 pub fn ibc_packet_ack(
     deps: DepsMut,
     _env: Env,
@@ -87,7 +78,7 @@ pub fn ibc_packet_timeout(
     _env: Env,
     msg: IbcPacketTimeoutMsg,
 ) -> Result<IbcBasicResponse, ContractError> {
-    on_packet_failure(deps, msg.packet, "timeout".to_string())
+    on_packet_failure(deps, msg.packet, "ibc_timeout".to_string())
 }
 
 fn on_packet_success(
@@ -95,7 +86,7 @@ fn on_packet_success(
     _packet: IbcPacket,
 ) -> Result<IbcBasicResponse, ContractError> {
     // do nothing and send events only
-    let attributes = vec![attr("action", "acknowledge"), attr("success", "true")];
+    let attributes = vec![attr("action", "ibc_acknowledge"), attr("success", "true")];
     Ok(IbcBasicResponse::new().add_attributes(attributes))
 }
 
@@ -106,7 +97,7 @@ fn on_packet_failure(
 ) -> Result<IbcBasicResponse, ContractError> {
     // do nothing and send events only
     let res = IbcBasicResponse::new()
-        .add_attribute("action", "acknowledge")
+        .add_attribute("action", "ibc_acknowledge")
         .add_attribute("success", "false")
         .add_attribute("error", err);
     Ok(res)

@@ -60,6 +60,15 @@ pub fn ibc_channel_connect(
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
+pub fn ibc_channel_close(
+    _deps: DepsMut,
+    _env: Env,
+    _channel: IbcChannelCloseMsg,
+) -> Result<IbcBasicResponse, ContractError> {
+    unimplemented!();
+}
+
+#[cfg_attr(not(feature = "library"), entry_point)]
 pub fn ibc_packet_ack(
     deps: DepsMut,
     _env: Env,

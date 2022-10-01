@@ -11,4 +11,13 @@ pub enum ContractError {
 
     #[error("Empty content")]
     EmptyContent {},
+
+    #[error("Must set version to `{version}")]
+    InvalidIbcVersion { version: String },
+
+    #[error("Counter party must set version to `{version}")]
+    InvalidCounterPartyIbcVersion { version: String },
+
+    #[error("Only supports unordered channel")]
+    OnlyOrderedChannel {},
 }

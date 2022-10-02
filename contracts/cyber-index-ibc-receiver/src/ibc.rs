@@ -1,5 +1,4 @@
 use crate::error::ContractError;
-use crate::state::{ChannelInfo, CHANNEL_INFO};
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{entry_point, attr, from_binary, to_binary, Addr, Binary, Env, IbcBasicResponse, IbcChannel, IbcChannelConnectMsg, IbcChannelOpenMsg, IbcOrder, IbcPacket, IbcPacketReceiveMsg, IbcReceiveResponse, StdResult, IbcChannelCloseMsg, IbcPacketTimeoutMsg, IbcPacketAckMsg};
 use cyber_std::{create_cyberlink_msg, CyberMsgWrapper, DepsMut, Link};
@@ -53,17 +52,11 @@ pub fn ibc_channel_open(
 
 #[entry_point]
 pub fn ibc_channel_connect(
-    deps: DepsMut,
+    _deps: DepsMut,
     _env: Env,
     msg: IbcChannelConnectMsg,
 ) -> StdResult<IbcBasicResponse> {
     let channel: IbcChannel = msg.into();
-    let info = ChannelInfo {
-        id: channel.endpoint.channel_id.clone(),
-        counterparty_endpoint: channel.counterparty_endpoint,
-        connection_id: channel.connection_id,
-    };
-    CHANNEL_INFO.save(deps.storage, &info)?;
     Ok(IbcBasicResponse::new()
         .add_attribute("action", "ibc_connect")
         .add_attribute("chain_id", channel.endpoint.channel_id))
@@ -72,18 +65,13 @@ pub fn ibc_channel_connect(
 #[entry_point]
 /// On closed channel, simply delete the account from our local store
 pub fn ibc_channel_close(
-    deps: DepsMut,
+    _deps: DepsMut,
     _env: Env,
     msg: IbcChannelCloseMsg,
 ) -> StdResult<IbcBasicResponse> {
-    let channel = msg.channel();
-
-    // remove the channel
-    let channel_id = &channel.endpoint.channel_id;
-
     Ok(IbcBasicResponse::new()
         .add_attribute("action", "ibc_close")
-        .add_attribute("channel_id", channel_id))
+        .add_attribute("channel_id", &msg.channel().endpoint.channel_id))
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]

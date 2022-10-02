@@ -17,10 +17,12 @@ export const Post: React.FC<Props> = ({dtag, author, profilePicture, text}) => {
         <label>{author}</label>
       </div>
     </div>
-    <div
-      className={styles.text}
-    >
-      {text}
+    <div className={styles.textContainer}>
+      <div
+        className={styles.text}
+      >
+        {text}
+      </div>
     </div>
   </div>
 }

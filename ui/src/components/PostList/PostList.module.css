@@ -1,5 +1,14 @@
+.container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .list {
     display: flex;
+    padding: 0;
+    width: 100%;
     flex-direction: column;
     overflow-y: auto;
     align-items: center;

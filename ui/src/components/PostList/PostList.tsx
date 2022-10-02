@@ -35,11 +35,11 @@ export const PostList: React.FC<Props> = ({searchText}) => {
 
   }, [pageLoading, loadNextPage])
 
-  return <div>
+  return <div className={styles.container}>
     <ol className={styles.list} onScroll={trackScrolling}>
       {postElements}
     </ol>
-    {pageLoading && <p>loading...</p>}
+    {pageLoading && <p>Loading...</p>}
     {!pageLoading && posts.length === 0 && endReached && <p>No elements</p>}
   </div>
 

@@ -1,13 +1,13 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    to_binary, Binary, Deps, DepsMut, Env, IbcMsg, MessageInfo, Response, Timestamp, Empty
+    to_binary, DepsMut, Env, IbcMsg, MessageInfo, Response, Timestamp, Empty
 };
 use cw2::set_contract_version;
 use desmos_bindings::posts::querier::PostsQuerier;
 
 use crate::error::ContractError;
-use crate::msg::{ExecuteMsg, InstantiateMsg, Packet, QueryMsg, Link};
+use crate::msg::{ExecuteMsg, Packet, Link};
 use crate::state::{CHANNEL_INFO};
 use std::ops::Deref;
 

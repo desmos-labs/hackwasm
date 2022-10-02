@@ -20,4 +20,13 @@ pub enum ContractError {
 
     #[error("Only supports unordered channel")]
     OnlyOrderedChannel {},
+
+    #[error("Invalid data for the particle")]
+    InvalidParticleData {},
+
+    #[error("Invalid particle")]
+    InvalidParticle {},
+
+    #[error("Invalid particle version")]
+    InvalidParticleVersion {},
 }

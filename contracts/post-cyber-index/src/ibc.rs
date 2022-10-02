@@ -57,7 +57,7 @@ pub fn ibc_channel_connect(
 #[entry_point]
 /// On closed channel, simply delete the account from our local store
 pub fn ibc_channel_close(
-    deps: DepsMut,
+    _deps: DepsMut,
     _env: Env,
     msg: IbcChannelCloseMsg,
 ) -> StdResult<IbcBasicResponse> {

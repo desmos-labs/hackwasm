@@ -5,6 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {ApolloClient, ApolloProvider, InMemoryCache} from "@apollo/client";
 import {RootContextProvider} from "./context/app";
+import "./font/Sf-Pro.otf";
 
 
 const client = new ApolloClient({

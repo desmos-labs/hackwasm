@@ -8,7 +8,6 @@ pub enum ExecuteMsg {
     CyberIndexPost {
         subspace_id: Uint64,
         post_id: Uint64,
-        root_hash: String,
     },
 }
 

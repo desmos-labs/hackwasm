@@ -1,20 +1,20 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
-use cosmwasm_std::{
-    to_binary, DepsMut, Env, IbcMsg, MessageInfo, Response, Timestamp, Empty
-};
+use cosmwasm_std::{to_binary, DepsMut, Empty, Env, IbcMsg, MessageInfo, Response, Timestamp};
 use cw2::set_contract_version;
 use desmos_bindings::posts::querier::PostsQuerier;
 
 use crate::error::ContractError;
-use crate::msg::{ExecuteMsg, Packet, Link};
-use crate::state::{CHANNEL_INFO};
+use crate::msg::{ExecuteMsg, Link, Packet};
+use crate::state::CHANNEL_INFO;
+use crate::particle::prepare_particle;
 use std::ops::Deref;
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:post-cyber-index";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
-pub const PACKET_LIFETIME: u64 = 60 * 60;
+const PACKET_LIFETIME: u64 = 60 * 60;
+const DESMOS_NAMESPACE: &str = "desmos";
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
@@ -37,9 +37,15 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
-        ExecuteMsg::CyberIndexPost { subspace_id, post_id, root_hash } => {
-            create_post_cyber_link(deps, env.block.time, subspace_id.into(), post_id.into(), root_hash)
-        }
+        ExecuteMsg::CyberIndexPost {
+            subspace_id,
+            post_id,
+        } => create_post_cyber_link(
+            deps,
+            env.block.time,
+            subspace_id.into(),
+            post_id.into(),
+        ),
     }
 }
 
@@ -48,13 +54,11 @@ fn create_post_cyber_link(
     time: Timestamp,
     subspace_id: u64,
     post_id: u64,
-    root_hash: String,
 ) -> Result<Response, ContractError> {
     let channel_info = CHANNEL_INFO.load(deps.storage)?;
-    let links = get_cyber_links_from_post(deps, root_hash, subspace_id, post_id)?;
     let msg = IbcMsg::SendPacket {
         channel_id: channel_info.id,
-        data: to_binary(&Packet { links })?,
+        data: to_binary(&Packet { links: get_cyber_links_from_post(deps, subspace_id, post_id)? })?,
         timeout: time.plus_seconds(PACKET_LIFETIME).into(),
     };
     Ok(Response::new()
@@ -64,17 +68,39 @@ fn create_post_cyber_link(
 
 fn get_cyber_links_from_post(
     deps: DepsMut,
-    root_hash: String,
     subspace_id: u64,
     post_id: u64,
 ) -> Result<Vec<Link>, ContractError> {
     let post = PostsQuerier::new(deps.querier.deref())
         .query_post(subspace_id, post_id)?
         .post;
-    let text = post.text.ok_or(ContractError::EmptyContent {})?;
-    Ok(vec![Link {
-        from: root_hash,
-        to: text,
-    }])
+    let mut links: Vec<Link> = vec![];
+    // Add from desmos namespace to subspace cyber link 
+    let subspace_cid = get_subspace_cid(subspace_id)?;
+    links.push(Link{
+        from: prepare_particle(DESMOS_NAMESPACE.into())?.to_string(),
+        to: subspace_cid.clone(),
+    });
+    // Add from tags to post uri cyber link
+    let post_uri_cid = get_post_uri_cid(subspace_id, post_id)?;
+    for tag in post.tags {
+        links.push(Link {
+            from: prepare_particle(tag)?.to_string(),
+            to: post_uri_cid.clone(),
+        });
+    }
+    // Add from subspace to post uri cyber link 
+    links.push(Link {
+        from: subspace_cid,
+        to: post_uri_cid,
+    });
+    Ok(links)
 }
 
+fn get_subspace_cid(subspace_id: u64) -> Result<String, ContractError> {
+    Ok(prepare_particle(format!("desmos-subspace-{}", subspace_id))?.to_string())
+}
+
+fn get_post_uri_cid(subspace_id: u64, post_id: u64) -> Result<String, ContractError> {
+    Ok(prepare_particle(format!("desmos://{}/{}", subspace_id, post_id))?.to_string())
+}

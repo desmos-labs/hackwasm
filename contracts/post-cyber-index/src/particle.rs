@@ -1,9 +1,10 @@
 /// Copy from https://github.com/cybercongress/cw-cyber/packages/cyber-std/src/particle.rs
+
+use crate::error::ContractError;
+use cid::multihash::{Code, MultihashDigest};
+use cid::{Cid, Version};
 use std::ops::Add;
 use std::str::FromStr;
-use cid::{Cid, Version};
-use cid::multihash::{Code, MultihashDigest};
-use crate::error::ContractError;
 
 pub fn prepare_particle(input: String) -> Result<Cid, ContractError> {
     if input.len() == 0 || input.len() > 256 {
@@ -24,7 +25,7 @@ pub fn prepare_particle(input: String) -> Result<Cid, ContractError> {
 }
 
 pub fn check_particle(input: String) -> Result<Cid, ContractError> {
-    let particle:Cid;
+    let particle: Cid;
     let try_particle = Cid::from_str(&input.clone());
     if try_particle.is_ok() {
         particle = try_particle.unwrap();

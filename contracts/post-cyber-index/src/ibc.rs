@@ -2,7 +2,7 @@ use crate::error::ContractError;
 use crate::state::{ChannelInfo, CHANNEL_INFO};
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{
-    attr, entry_point, from_binary, Binary, DepsMut, Env, IbcBasicResponse, IbcChannel,
+    attr, entry_point, from_binary, to_binary, Binary, DepsMut, Env, IbcBasicResponse, IbcChannel,
     IbcChannelCloseMsg, IbcChannelConnectMsg, IbcChannelOpenMsg, IbcOrder, IbcPacket,
     IbcPacketAckMsg, IbcPacketReceiveMsg, IbcPacketTimeoutMsg, IbcReceiveResponse, StdResult,
 };
@@ -11,6 +11,12 @@ use cosmwasm_std::{
 pub enum Ack {
     Result(Binary),
     Error(String),
+}
+
+// create a serialized success message
+fn ack_success() -> Binary {
+    let res = Ack::Result(b"1".into());
+    to_binary(&res).unwrap()
 }
 
 pub const IBC_APP_VERSION: &str = "desmos-cyber-link-v0";
@@ -65,14 +71,9 @@ pub fn ibc_channel_close(
     _env: Env,
     msg: IbcChannelCloseMsg,
 ) -> StdResult<IbcBasicResponse> {
-    let channel = msg.channel();
-
-    // remove the channel
-    let channel_id = &channel.endpoint.channel_id;
-
     Ok(IbcBasicResponse::new()
         .add_attribute("action", "ibc_close")
-        .add_attribute("channel_id", channel_id))
+        .add_attribute("channel_id", &msg.channel().endpoint.channel_id))
 }
 
 #[entry_point]
@@ -83,7 +84,7 @@ pub fn ibc_packet_receive(
     _packet: IbcPacketReceiveMsg,
 ) -> StdResult<IbcReceiveResponse> {
     Ok(IbcReceiveResponse::new()
-        .set_ack(b"{}")
+        .set_ack(ack_success())
         .add_attribute("action", "ibc_packet_ack"))
 }
 

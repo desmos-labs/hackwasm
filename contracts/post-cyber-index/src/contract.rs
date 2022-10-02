@@ -6,8 +6,8 @@ use desmos_bindings::posts::querier::PostsQuerier;
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, Link, Packet};
-use crate::state::CHANNEL_INFO;
 use crate::particle::prepare_particle;
+use crate::state::CHANNEL_INFO;
 use std::ops::Deref;
 
 // version info for migration info
@@ -40,12 +40,7 @@ pub fn execute(
         ExecuteMsg::CyberIndexPost {
             subspace_id,
             post_id,
-        } => create_post_cyber_link(
-            deps,
-            env.block.time,
-            subspace_id.into(),
-            post_id.into(),
-        ),
+        } => create_post_cyber_link(deps, env.block.time, subspace_id.into(), post_id.into()),
     }
 }
 
@@ -58,7 +53,9 @@ fn create_post_cyber_link(
     let channel_info = CHANNEL_INFO.load(deps.storage)?;
     let msg = IbcMsg::SendPacket {
         channel_id: channel_info.id,
-        data: to_binary(&Packet { links: get_cyber_links_from_post(deps, subspace_id, post_id)? })?,
+        data: to_binary(&Packet {
+            links: get_cyber_links_from_post(deps, subspace_id, post_id)?,
+        })?,
         timeout: time.plus_seconds(PACKET_LIFETIME).into(),
     };
     Ok(Response::new()
@@ -75,9 +72,9 @@ fn get_cyber_links_from_post(
         .query_post(subspace_id, post_id)?
         .post;
     let mut links: Vec<Link> = vec![];
-    // Add from desmos namespace to subspace cyber link 
+    // Add from desmos namespace to subspace cyber link
     let subspace_cid = get_subspace_cid(subspace_id)?;
-    links.push(Link{
+    links.push(Link {
         from: prepare_particle(DESMOS_NAMESPACE.into())?.to_string(),
         to: subspace_cid.clone(),
     });
@@ -89,7 +86,7 @@ fn get_cyber_links_from_post(
             to: post_uri_cid.clone(),
         });
     }
-    // Add from subspace to post uri cyber link 
+    // Add from subspace to post uri cyber link
     links.push(Link {
         from: subspace_cid,
         to: post_uri_cid,

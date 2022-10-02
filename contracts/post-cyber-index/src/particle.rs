@@ -1,5 +1,4 @@
 /// Copy from https://github.com/cybercongress/cw-cyber/packages/cyber-std/src/particle.rs
-
 use crate::error::ContractError;
 use cid::multihash::{Code, MultihashDigest};
 use cid::{Cid, Version};

@@ -3,5 +3,6 @@ mod error;
 pub mod ibc;
 pub mod msg;
 pub mod state;
+pub mod utils;
 
 pub use crate::error::ContractError;

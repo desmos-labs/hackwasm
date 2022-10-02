@@ -9,9 +9,6 @@ pub enum ContractError {
     #[error("Unauthorized")]
     Unauthorized {},
 
-    #[error("Empty content")]
-    EmptyContent {},
-
     #[error("Must set version to `{version}")]
     InvalidIbcVersion { version: String },
 

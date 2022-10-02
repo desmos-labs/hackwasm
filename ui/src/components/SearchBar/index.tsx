@@ -1,5 +1,6 @@
 import React, {useCallback} from "react";
 import styles from "./SearchBar.module.css"
+import {AiOutlineSearch} from "react-icons/ai"
 
 export interface Props {
     // Function called when the user is typing.
@@ -27,11 +28,14 @@ export const SearchBar: React.FC<Props> = ({onValueChange, onSubmit, defaultValu
     }, [onSubmit])
 
 
-    return <input type="text" inputMode="text" className={styles.input}
-                  placeholder="Search post"
-                  multiple={false}
-                  defaultValue={defaultValue}
-                  onChange={onInputChange}
-                  onKeyDown={onInputKeyDown}
-    />
+    return <div className={styles.container}>
+        <AiOutlineSearch className={styles.icon}/>
+        <input type="text" inputMode="text" className={styles.input}
+               placeholder="Search post"
+               multiple={false}
+               defaultValue={defaultValue}
+               onChange={onInputChange}
+               onKeyDown={onInputKeyDown}
+        />
+    </div>
 }

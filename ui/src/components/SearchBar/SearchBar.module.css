@@ -1,10 +1,29 @@
-.input {
-    height: 50px;
-    text-align: center;
-    outline: none;
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     border-radius: 12px;
-    border: 3px solid white;
+    border: 1px solid white;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.icon {
+    color: white;
+}
+
+.input {
+    height: 24px;
+    width: 220px;
+    margin-left: 10px;
+    outline: none;
     background: transparent;
+    border: 0;
+    color: white;
+}
+
+.input::placeholder {
+    color: white;
 }
 
 .input:focus {

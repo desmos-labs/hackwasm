@@ -39,6 +39,7 @@ export function useSearchPosts(query: string | undefined) {
       setPageLoading(true);
 
       const hash = await getIpfsHash(query!);
+      console.log("hash", hash);
       const particles = await cyberJs!.search(hash, page, 20)
         .then((result) => result.result)
         .catch((err) => {
@@ -48,6 +49,7 @@ export function useSearchPosts(query: string | undefined) {
 
       // @ts-ignore
       const posts = await Promise.all(particles.map((particle) => {
+        console.log("particle", particle);
         const url = `https://cloudflare-ipfs.com/ipfs/${particle.particle}`;
         return axios.get(url).then((response) => {
           return response.data.toString()

@@ -1,12 +1,7 @@
 use crate::error::ContractError;
 use crate::state::{ChannelInfo, CHANNEL_INFO};
 use cosmwasm_schema::cw_serde;
-#[cfg(not(feature = "library"))]
-use cosmwasm_std::entry_point;
-use cosmwasm_std::{
-    attr, from_binary, Binary, DepsMut, Env, IbcBasicResponse, IbcChannel, IbcChannelConnectMsg,
-    IbcChannelOpenMsg, IbcOrder, IbcPacket, IbcPacketAckMsg, IbcPacketTimeoutMsg, StdResult,
-};
+use cosmwasm_std::{entry_point,attr, from_binary, Binary, DepsMut, Env, IbcBasicResponse, IbcChannel, IbcChannelConnectMsg, IbcChannelOpenMsg, IbcOrder, IbcPacket, IbcPacketAckMsg, IbcPacketTimeoutMsg, StdResult, IbcChannelCloseMsg, IbcPacketReceiveMsg, IbcReceiveResponse};
 
 #[cw_serde]
 pub enum Ack {
@@ -16,7 +11,7 @@ pub enum Ack {
 
 pub const IBC_APP_VERSION: &str = "desmos-cyber-link-v0";
 
-#[cfg_attr(not(feature = "library"), entry_point)]
+#[entry_point]
 pub fn ibc_channel_open(
     _deps: DepsMut,
     _env: Env,
@@ -41,7 +36,7 @@ pub fn ibc_channel_open(
     Ok(())
 }
 
-#[cfg_attr(not(feature = "library"), entry_point)]
+#[entry_point]
 pub fn ibc_channel_connect(
     deps: DepsMut,
     _env: Env,
@@ -59,7 +54,36 @@ pub fn ibc_channel_connect(
         .add_attribute("chain_id", channel.endpoint.channel_id))
 }
 
-#[cfg_attr(not(feature = "library"), entry_point)]
+#[entry_point]
+/// On closed channel, simply delete the account from our local store
+pub fn ibc_channel_close(
+    deps: DepsMut,
+    _env: Env,
+    msg: IbcChannelCloseMsg,
+) -> StdResult<IbcBasicResponse> {
+    let channel = msg.channel();
+
+    // remove the channel
+    let channel_id = &channel.endpoint.channel_id;
+
+    Ok(IbcBasicResponse::new()
+        .add_attribute("action", "ibc_close")
+        .add_attribute("channel_id", channel_id))
+}
+
+#[entry_point]
+/// never should be called as the other side never sends packets
+pub fn ibc_packet_receive(
+    _deps: DepsMut,
+    _env: Env,
+    _packet: IbcPacketReceiveMsg,
+) -> StdResult<IbcReceiveResponse> {
+    Ok(IbcReceiveResponse::new()
+        .set_ack(b"{}")
+        .add_attribute("action", "ibc_packet_ack"))
+}
+
+#[entry_point]
 pub fn ibc_packet_ack(
     deps: DepsMut,
     _env: Env,
@@ -72,7 +96,7 @@ pub fn ibc_packet_ack(
     }
 }
 
-#[cfg_attr(not(feature = "library"), entry_point)]
+#[entry_point]
 pub fn ibc_packet_timeout(
     deps: DepsMut,
     _env: Env,

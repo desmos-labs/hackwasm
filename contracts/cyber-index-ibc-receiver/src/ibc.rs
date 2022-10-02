@@ -1,13 +1,7 @@
 use crate::error::ContractError;
 use crate::state::{ChannelInfo, CHANNEL_INFO};
 use cosmwasm_schema::cw_serde;
-#[cfg(not(feature = "library"))]
-use cosmwasm_std::entry_point;
-use cosmwasm_std::{
-    attr, from_binary, to_binary, Addr, Binary, Env, IbcBasicResponse, IbcChannel,
-    IbcChannelConnectMsg, IbcChannelOpenMsg, IbcOrder, IbcPacket, IbcPacketReceiveMsg,
-    IbcReceiveResponse, StdResult,
-};
+use cosmwasm_std::{entry_point, attr, from_binary, to_binary, Addr, Binary, Env, IbcBasicResponse, IbcChannel, IbcChannelConnectMsg, IbcChannelOpenMsg, IbcOrder, IbcPacket, IbcPacketReceiveMsg, IbcReceiveResponse, StdResult, IbcChannelCloseMsg, IbcPacketTimeoutMsg, IbcPacketAckMsg};
 use cyber_std::{create_cyberlink_msg, CyberMsgWrapper, DepsMut, Link};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -32,7 +26,7 @@ fn ack_fail(err: String) -> Binary {
 
 pub const IBC_APP_VERSION: &str = "desmos-cyber-link-v0";
 
-#[cfg_attr(not(feature = "library"), entry_point)]
+#[entry_point]
 pub fn ibc_channel_open(
     _deps: DepsMut,
     _env: Env,
@@ -57,7 +51,7 @@ pub fn ibc_channel_open(
     Ok(())
 }
 
-#[cfg_attr(not(feature = "library"), entry_point)]
+#[entry_point]
 pub fn ibc_channel_connect(
     deps: DepsMut,
     _env: Env,
@@ -75,12 +69,29 @@ pub fn ibc_channel_connect(
         .add_attribute("chain_id", channel.endpoint.channel_id))
 }
 
+#[entry_point]
+/// On closed channel, simply delete the account from our local store
+pub fn ibc_channel_close(
+    deps: DepsMut,
+    _env: Env,
+    msg: IbcChannelCloseMsg,
+) -> StdResult<IbcBasicResponse> {
+    let channel = msg.channel();
+
+    // remove the channel
+    let channel_id = &channel.endpoint.channel_id;
+
+    Ok(IbcBasicResponse::new()
+        .add_attribute("action", "ibc_close")
+        .add_attribute("channel_id", channel_id))
+}
+
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
 pub struct Packet {
     pub links: Vec<Link>,
 }
 
-#[cfg_attr(not(feature = "library"), entry_point)]
+#[entry_point]
 pub fn ibc_packet_receive(
     _deps: DepsMut,
     env: Env,
@@ -106,4 +117,48 @@ fn do_ibc_packet_receive(
         .add_message(create_cyberlink_msg(address.into(), packet.links))
         .add_attribute("action", "ibc_recieve")
         .set_ack(ack_success()))
+}
+
+#[entry_point]
+pub fn ibc_packet_ack(
+    deps: DepsMut,
+    _env: Env,
+    msg: IbcPacketAckMsg,
+) -> Result<IbcBasicResponse, ContractError> {
+    let cyber_ack: Ack = from_binary(&msg.acknowledgement.data)?;
+    match cyber_ack {
+        Ack::Result(_) => on_packet_success(deps, msg.original_packet),
+        Ack::Error(err) => on_packet_failure(deps, msg.original_packet, err),
+    }
+}
+
+#[entry_point]
+pub fn ibc_packet_timeout(
+    deps: DepsMut,
+    _env: Env,
+    msg: IbcPacketTimeoutMsg,
+) -> Result<IbcBasicResponse, ContractError> {
+    on_packet_failure(deps, msg.packet, "ibc_timeout".to_string())
+}
+
+fn on_packet_success(
+    _deps: DepsMut,
+    _packet: IbcPacket,
+) -> Result<IbcBasicResponse, ContractError> {
+    // do nothing and send events only
+    let attributes = vec![attr("action", "ibc_acknowledge"), attr("success", "true")];
+    Ok(IbcBasicResponse::new().add_attributes(attributes))
+}
+
+fn on_packet_failure(
+    _deps: DepsMut,
+    _packet: IbcPacket,
+    err: String,
+) -> Result<IbcBasicResponse, ContractError> {
+    // do nothing and send events only
+    let res = IbcBasicResponse::new()
+        .add_attribute("action", "ibc_acknowledge")
+        .add_attribute("success", "false")
+        .add_attribute("error", err);
+    Ok(res)
 }

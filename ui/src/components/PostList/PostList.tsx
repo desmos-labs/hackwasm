@@ -8,7 +8,7 @@ export interface Props {
 }
 
 export const PostList: React.FC<Props> = ({searchText}) => {
-  const {pageLoading, posts, loadNextPage} = useSearchPosts(searchText)
+  const {pageLoading, posts, loadNextPage, endReached} = useSearchPosts(searchText)
 
   const postElements = useMemo(() => {
     return posts.map((text, index) => {
@@ -40,6 +40,7 @@ export const PostList: React.FC<Props> = ({searchText}) => {
       {postElements}
     </ol>
     {pageLoading && <p>loading...</p>}
+    {!pageLoading && posts.length === 0 && endReached && <p>No elements</p>}
   </div>
 
 }

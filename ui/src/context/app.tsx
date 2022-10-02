@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {CyberClient} from "@cybercongress/cyber-js";
+import {DesmosClient} from "@desmoslabs/desmjs";
 
 export interface Props {
   children?: React.ReactNode
@@ -7,10 +8,12 @@ export interface Props {
 
 export interface RootContextValue {
   cyberJs: null | CyberClient,
+  desmosClient: null | DesmosClient
 }
 
 const rootContextValue: RootContextValue = {
-  cyberJs: null
+  cyberJs: null,
+  desmosClient: null,
 }
 
 export const RootContext = React.createContext(rootContextValue);
@@ -29,6 +32,19 @@ export const RootContextProvider: React.FC<Props> = ({ children }) => {
       })
     })()
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      const client = await DesmosClient.connect("https://rpc.morpheus.desmos.network");
+      setContextValue((old) => {
+        return {
+          ...old,
+          desmosClient: client
+        }
+      })
+    })()
+  }, []);
+
 
   return <RootContext.Provider children={children} value={value} />
 }

@@ -21,3 +21,10 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Desmos bin
+scripts/desmos
+# Desmos home
+scripts/.desmos
+# Generated post
+scripts/post.json

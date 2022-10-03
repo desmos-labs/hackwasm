@@ -1,20 +1,21 @@
 import React from "react";
 import styles from "./PostItem.module.css";
+import {Post as PostModel} from "../../models/post";
 
 export interface Props {
-  dtag: string,
-  author: string,
-  profilePicture: string,
-  text: string,
+  post: PostModel,
 }
 
-export const Post: React.FC<Props> = ({dtag, author, profilePicture, text}) => {
+export const Post: React.FC<Props> = ({post}) => {
+  const {text, author} = post;
+
+
   return <div className={styles.post}>
     <div className={styles.authorContainer}>
-      <img src={profilePicture} className={styles.profilePicture} alt={dtag}/>
+      <img src={author.profile_pic} className={styles.profilePicture} alt={author.dtag}/>
       <div className={styles.authorDetails}>
-        <label>{dtag}</label>
-        <label>{author}</label>
+        <label>@{author.dtag}</label>
+        <label>{author.address}</label>
       </div>
     </div>
     <div className={styles.textContainer}>

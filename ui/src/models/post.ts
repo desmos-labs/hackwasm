@@ -1,5 +1,10 @@
-export interface Post {
+export interface Profile {
+  address: string,
   dtag: string,
-  author: string,
-  content: string
+  profile_pic: string,
+}
+
+export interface Post {
+  author: Profile
+  text: string
 }

@@ -11,13 +11,10 @@ export const PostList: React.FC<Props> = ({searchText}) => {
   const {pageLoading, posts, loadNextPage, endReached} = useSearchPosts(searchText)
 
   const postElements = useMemo(() => {
-    return posts.map((text, index) => {
+    return posts.map((post, index) => {
       return <Post
         key={`post-${index}`}
-        dtag={"@dtag"}
-        author={"desmosfdsafdsafd"}
-        profilePicture={"https://miro.medium.com/fit/c/176/176/2*FkLK_9uvLR3_-Q-52nGpWQ.jpeg"}
-        text={text}
+        post={post}
       />
     })
   }, [posts])

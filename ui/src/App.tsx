@@ -9,7 +9,7 @@ function App() {
 
   return (
     <div className="App" style={{ background: `url(${Background})`}}>
-      <Title text={"INTERCHAIN INDEXER"} style={{ marginTop: '8%'}}/>
+      <Title text={"INTERCHAIN SEARCH"} style={{ marginTop: '8%'}}/>
       <SearchBar
         onSubmit={(value) => {
           console.log("submit", value);

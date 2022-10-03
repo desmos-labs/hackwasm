@@ -9,7 +9,7 @@ import "./font/Sf-Pro.otf";
 
 
 const client = new ApolloClient({
-  uri: "https://index.space-pussy-1.cybernode.ai/v1/graphql",
+  uri: "https://gql.morpheus.desmos.network/v1/graphql",
   cache: new InMemoryCache(),
 })
 

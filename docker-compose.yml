@@ -20,11 +20,11 @@ services:
 
   cyber:
     container_name: cyber
-    image: "space-pussy-1"
+    image: "cyberd/cyber:bostrom-localnet-1"
     ports:
-      - "26656-26657:26656-26657"
-      - "1317:1317"
-      - "9090:9090"
+      - "26666-26667:26656-26657"
+      - "1318:1317"
+      - "9091:9090"
     environment:
       - ID=0
       - LOG=${LOG:-desmos.log}

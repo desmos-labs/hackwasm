@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  desmos:
+    container_name: desmos
+    image: "desmoslabs/desmos:v4.3.0"
+    ports:
+      - "26656-26657:26656-26657"
+      - "1317:1317"
+      - "9090:9090"
+    environment:
+      - ID=0
+      - LOG=${LOG:-desmos.log}
+    volumes:
+      - ./build/cyber-desmos/desmos:/root:Z
+    command: desmos start --home /root --rpc.laddr tcp://0.0.0.0:26657
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.2
+
+  cyber:
+    container_name: cyber
+    image: "space-pussy-1"
+    ports:
+      - "26656-26657:26656-26657"
+      - "1317:1317"
+      - "9090:9090"
+    environment:
+      - ID=0
+      - LOG=${LOG:-desmos.log}
+    volumes:
+      - ./build/cyber-desmos/cyber:/root:Z
+    command: cyber start --home /root --rpc.laddr tcp://0.0.0.0:26657
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.3
+
+networks:
+  localnet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.10.0/16
